@@ -55,6 +55,7 @@ class Planner:
                    goal: Tuple[int, int],
                    dynamic_obstacles: Dict[int, Set[Tuple[int, int]]],
                    semi_dynamic_obstacles:Dict[int, Set[Tuple[int, int]]] = None,
+                   start_time: int = 0,
                    max_iter:int = 500,
                    debug:bool = False) -> np.ndarray:
 
@@ -86,7 +87,7 @@ class Planner:
         goal = self.grid.snap_to_grid(np.array(goal))
 
         # Initialize the start state
-        s = State(start, 0, 0, self.h(start, goal))
+        s = State(start, start_time, 0, self.h(start, goal))
 
         open_set = [s]
         closed_set = set()
