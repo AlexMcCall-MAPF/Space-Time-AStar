@@ -73,6 +73,9 @@ class Planner:
         else:
             semi_dynamic_obstacles = dict((k, np.array(list(v))) for k, v in semi_dynamic_obstacles.items())
         def safe_semi_dynamic(grid_pos: np.ndarray, time: int) -> bool:
+            # Allow agent to occupy its start position at start_time, even if semi_dynamic_obstacles block it
+            if time == start_time and np.array_equal(grid_pos, start):
+                return True
             nonlocal semi_dynamic_obstacles
             for timestamp, obstacles in semi_dynamic_obstacles.items():
                 flag = True
