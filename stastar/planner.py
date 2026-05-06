@@ -5,6 +5,7 @@ Email: gavinsweden@gmail.com
 '''
 from typing import Tuple, List, Dict, Set
 from heapq import heappush, heappop
+import math
 import numpy as np
 from scipy.spatial import KDTree
 
@@ -110,7 +111,17 @@ class Planner:
             closed_set.add(heappop(open_set))
             epoch = current_state.time + 1
             for neighbour in self.neighbour_table.lookup(current_state.pos):
-                neighbour_state = State(neighbour, epoch, current_state.g_score + 1, self.h(neighbour, goal))
+                # Calculate movement cost: 1.0 for cardinal, sqrt(2) for diagonal
+                dx = abs(neighbour[0] - current_state.pos[0])
+                dy = abs(neighbour[1] - current_state.pos[1])
+                if (dx == 0 and dy == 1) or (dx == 1 and dy == 0):
+                    move_cost = 1.0  # Cardinal move
+                elif dx == 1 and dy == 1:
+                    move_cost = math.sqrt(2)  # Diagonal move
+                else:
+                    move_cost = 1.0  # Wait action (same position)
+                
+                neighbour_state = State(neighbour, epoch, current_state.g_score + move_cost, self.h(neighbour, goal))
                 # Check if visited
                 if neighbour_state in closed_set:
                     continue
