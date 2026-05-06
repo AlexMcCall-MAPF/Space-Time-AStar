@@ -35,8 +35,10 @@ class Planner:
     An admissible and consistent heuristic for A*
     '''
     @staticmethod
-    def h(start: np.ndarray, goal: np.ndarray) -> int:
-        return int(np.linalg.norm(start-goal, 1))  # L1 norm
+    def h(start: np.ndarray, goal: np.ndarray) -> float:
+        dx = abs(start[0] - goal[0])
+        dy = abs(start[1] - goal[1])
+        return max(dx, dy) + (np.sqrt(2) - 1) * min(dx, dy)  # Octile distance
 
     @staticmethod
     def l2(start: np.ndarray, goal: np.ndarray) -> int:
