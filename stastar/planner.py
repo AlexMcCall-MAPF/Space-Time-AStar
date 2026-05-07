@@ -58,6 +58,7 @@ class Planner:
                    goal: Tuple[int, int],
                    dynamic_obstacles: Dict[int, Set[Tuple[int, int]]],
                    semi_dynamic_obstacles:Dict[int, Set[Tuple[int, int]]] = None,
+                   edge_constraints:Dict[int, Set[Tuple[Tuple[int, int], Tuple[int, int]]]] = None,
                    start_time: int = 0,
                    max_iter:int = 500,
                    debug:bool = False) -> np.ndarray:
@@ -87,6 +88,18 @@ class Planner:
                 if not flag:
                     return False
             return True
+
+        # Prepare edge constraints
+        if edge_constraints is None:
+            edge_constraints = dict()
+        def safe_edge(from_pos: np.ndarray, to_pos: np.ndarray, time: int) -> bool:
+            # Check if this edge traversal is forbidden
+            if time not in edge_constraints:
+                return True
+            from_tuple = (int(from_pos[0]), int(from_pos[1]))
+            to_tuple = (int(to_pos[0]), int(to_pos[1]))
+            edge = (from_tuple, to_tuple)
+            return edge not in edge_constraints[time]
 
 
         start = self.grid.snap_to_grid(np.array(start))
@@ -131,7 +144,8 @@ class Planner:
                 # Avoid obstacles
                 if not self.safe_static(neighbour) \
                    or not safe_dynamic(neighbour, epoch) \
-                   or not safe_semi_dynamic(neighbour, epoch):
+                   or not safe_semi_dynamic(neighbour, epoch) \
+                   or not safe_edge(current_state.pos, neighbour, epoch):
                     continue
 
                 # Add to open set
